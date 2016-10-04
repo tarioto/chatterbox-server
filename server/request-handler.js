@@ -23,18 +23,15 @@ var storage = {
 };
 
 var requestHandler = function(request, response) {
-  // var storage = {};
   var statusCode;
+  var headers = defaultCorsHeaders;
+  headers['Content-Type'] = 'text/plain';
 
-
-  if (request.method === 'GET') {
-    
+  if (request.method === 'GET' && request.url === '/classes/messages') {
     statusCode = 200;
-    // if (request.path !== '/classes/messages') { statusCode = 404; }
-    // storage.results = [];
     response.end(JSON.stringify(storage));
 
-  } else if (request.method === 'POST') {
+  } else if (request.method === 'POST' && request.url === '/classes/messages') {
 
     statusCode = 201;
     var body = [];
@@ -45,15 +42,11 @@ var requestHandler = function(request, response) {
       response.end();
     });
 
-  } else if (request.url !== '/classes/messages') {
+  } else {
     statusCode = 404;
+    response.writeHead(statusCode, headers);
+    response.end();
   }
-
-  console.log('Serving request type ' + request.method + ' for url ' + request.url);
-
-  var headers = defaultCorsHeaders;
-
-  headers['Content-Type'] = 'text/plain';
 
   response.writeHead(statusCode, headers);
 
