@@ -12,9 +12,10 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 var defaultCorsHeaders = {
-  'access-control-allow-origin': '*',
+  'Access-Control-Allow-Origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'access-control-allow-headers': 'content-type, accept',
+  'access-control-allow-credentials': true,
   'access-control-max-age': 10 // Seconds.
 };
 
@@ -27,28 +28,34 @@ var requestHandler = function(request, response) {
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = 'text/plain';
 
-  if (request.method === 'GET' && request.url === '/classes/messages') {
+
+  if (request.method === 'GET' && request.url === '/classes/messages/') {
     statusCode = 200;
+    response.writeHead(statusCode, headers);
+    console.log('sending get');
     response.end(JSON.stringify(storage));
 
-  } else if (request.method === 'POST' && request.url === '/classes/messages') {
-
+  } else if (request.method === 'POST' && request.url === '/classes/messages/') {
     statusCode = 201;
     var body = [];
     request.on('data', function(chunk) {
 
       storage.results.push(JSON.parse(chunk));
-
+      console.log('sending post');
       response.end();
     });
+
+  } else if (request.method === 'OPTIONS' && request.url === '/classes/messages/') {
+    statusCode = 200;
+    console.log('sending options');
+    response.writeHead(statusCode, headers);
+    response.end(JSON.stringify(storage));    
 
   } else {
     statusCode = 404;
     response.writeHead(statusCode, headers);
     response.end();
   }
-
-  response.writeHead(statusCode, headers);
 
 };
 
